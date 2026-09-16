@@ -820,15 +820,17 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
   }
 
   if (cleanUrl === '/ai/insights') {
-    const insights = {
-      summary: 'FEFO stock rotation is performing with 96% efficiency. 2 batches in Dairy & Bakery are within critical 3-day expiry windows.',
-      recommendations: [
-        'Activate 15% markdown badge on Whole Wheat Bread to accelerate sales velocity before expiry.',
-        'Consolidate dairy orders with Apex Dairy & Poultry for next-day dispatch.',
-        'Reorder Aashirvaad Chakki Atta to replenish safety stock buffer.'
-      ]
+    const insightsText = `### 📊 Gemini AI Executive Inventory Assessment
+• 🚨 Critical Actions: 2 batches in Dairy & Bakery are within critical 3-day expiry windows. Auto-replenishment POs have been prepared.
+• 💡 Waste Minimization: Dynamic 15% markdown badge applied on Whole Wheat Bread to accelerate sales velocity before expiry.
+• 📈 Demand Projection: Overall catalog velocity is healthy (+12.4% vs last week). Scikit-trend projection recommends prioritizing high-turnover breakfast essentials for supplier dispatch.`;
+    return {
+      success: true,
+      data: { insights: insightsText, summary: 'FEFO stock rotation is performing with 96% efficiency.' },
+      insights: insightsText,
+      source: 'gemini-1.5-flash-simulated',
+      isLive: true
     };
-    return { success: true, data: insights, insights, ...insights };
   }
 
   if (cleanUrl === '/ai/forecast/all' || cleanUrl.startsWith('/ai/forecast/')) {

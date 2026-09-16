@@ -153,7 +153,22 @@ export const AIForecasting = () => {
                   </span>
                 </div>
                 <div className="text-xs text-indigo-100/90 whitespace-pre-line leading-relaxed mt-2 bg-black/20 p-3.5 rounded-xl border border-white/5 font-sans">
-                  {executiveInsights.insights}
+                  {typeof executiveInsights.insights === 'string'
+                    ? executiveInsights.insights
+                    : typeof executiveInsights.insights === 'object' && executiveInsights.insights !== null
+                    ? (
+                        <div className="space-y-2">
+                          {executiveInsights.insights.summary && <p className="font-medium">{executiveInsights.insights.summary}</p>}
+                          {Array.isArray(executiveInsights.insights.recommendations) && (
+                            <ul className="list-disc pl-4 space-y-1">
+                              {executiveInsights.insights.recommendations.map((rec, idx) => (
+                                <li key={idx}>{rec}</li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      )
+                    : String(executiveInsights.insights || '')}
                 </div>
               </div>
             </div>
