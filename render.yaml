@@ -19,6 +19,6 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: MONGODB_URI
-        sync: false
+        value: mongodb+srv://dhasweenkumar43_db_user:b9tlMkYJURwWntqt@cluster0.8is2suv.mongodb.net/smart_grocery_db?appName=Cluster0&retryWrites=true&w=majority
       - key: GEMINI_API_KEY
         sync: false
