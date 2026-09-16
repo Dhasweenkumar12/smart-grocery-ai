@@ -1,0 +1,21 @@
+services:
+  # Unified Production Web Application (React SPA + Express API + Socket.IO + Google Gemini AI)
+  # Perfectly optimized for Render Free Tier (1 Web Service)
+  - type: web
+    name: smart-grocery-platform
+    env: node
+    plan: free
+    region: oregon
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install
+    startCommand: cd backend && node src/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
