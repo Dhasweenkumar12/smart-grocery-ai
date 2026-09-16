@@ -64,11 +64,15 @@ You can click any persona button on the top banner in the web interface to switc
 ## ☁️ Deployment Instructions
 
 ### Option 1: Render.com (1-Click Blueprint — Free Tier Optimized)
-1. Push your repository to **GitHub**.
-2. Log into [Render.com](https://render.com) and click **New** → **Blueprint**.
-3. Select your GitHub repository. Render will automatically detect `render.yaml`.
-4. Set your `MONGODB_URI` (from a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster) and `GEMINI_API_KEY`.
-5. Click **Apply** to deploy!
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Dhasweenkumar12/smart-grocery-ai)
+
+Direct Link: **[Deploy to Render.com](https://render.com/deploy?repo=https://github.com/Dhasweenkumar12/smart-grocery-ai)**
+
+1. Click the **Deploy to Render** button above.
+2. Render detects `render.yaml` automatically.
+3. Paste your `MONGODB_URI` (from free [MongoDB Atlas](https://www.mongodb.com/atlas)) and `GEMINI_API_KEY`.
+4. Click **Apply** to deploy! Once deployed, your app will be live at `https://smart-grocery-platform.onrender.com`.
 
 ### Option 2: Docker / VPS Deployment
 Run with Docker Compose:
