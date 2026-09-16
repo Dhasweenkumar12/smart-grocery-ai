@@ -1,0 +1,16 @@
+{
+  "name": "smart-grocery-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart Grocery AI - Full Stack Retail & Quick-Commerce Platform",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
+    "start": "cd backend && node src/server.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "keywords": ["smart-grocery", "gemini-ai", "retail", "fefo-inventory"],
+  "author": "",
+  "license": "ISC"
+}
