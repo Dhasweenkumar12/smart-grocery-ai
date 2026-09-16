@@ -61,22 +61,40 @@ You can click any persona button on the top banner in the web interface to switc
 
 ---
 
-## ☁️ Deployment Instructions
+## ☁️ Cloud Deployment
 
-### Option 1: Render.com (1-Click Blueprint — Free Tier Optimized)
+### Option 1: Render.com (Full-Stack Backend + WebSockets + Database)
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Dhasweenkumar12/smart-grocery-ai)
 
 Direct Link: **[Deploy to Render.com](https://render.com/deploy?repo=https://github.com/Dhasweenkumar12/smart-grocery-ai)**
 
-1. Click the **Deploy to Render** button above.
-2. Render detects `render.yaml` automatically.
-3. Paste your `MONGODB_URI` (from free [MongoDB Atlas](https://www.mongodb.com/atlas)) and `GEMINI_API_KEY`.
-4. Click **Apply** to deploy! Once deployed, your app will be live at `https://smart-grocery-platform.onrender.com`.
+1. Click **Deploy to Render** above.
+2. Render automatically reads `render.yaml` and provisions the unified full-stack web service.
+3. Supply your `MONGODB_URI` (from free [MongoDB Atlas](https://www.mongodb.com/atlas)) and optional `GEMINI_API_KEY`.
+4. Click **Apply** to deploy! Once deployed, the app will be live at `https://smart-grocery-platform.onrender.com`.
 
-### Option 2: Docker / VPS Deployment
+---
+
+### Option 2: Vercel (Frontend Edge Deployment)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDhasweenkumar12%2Fsmart-grocery-ai&env=VITE_API_URL,VITE_SOCKET_URL&envDescription=Set%20to%20your%20Render%20backend%20URL%20(e.g.%20https%3A%2F%2Fsmart-grocery-platform.onrender.com%2Fapi)&envLink=https%3A%2F%2Fsmart-grocery-platform.onrender.com)
+
+Direct Link: **[Deploy with Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDhasweenkumar12%2Fsmart-grocery-ai&env=VITE_API_URL,VITE_SOCKET_URL&envDescription=Set%20to%20your%20Render%20backend%20URL%20(e.g.%20https%3A%2F%2Fsmart-grocery-platform.onrender.com%2Fapi)&envLink=https%3A%2F%2Fsmart-grocery-platform.onrender.com)**
+
+1. Click **Deploy with Vercel** above.
+2. Select your GitHub account and import the repository.
+3. Set the Environment Variables:
+   - `VITE_API_URL`: Your Render backend API URL (e.g. `https://smart-grocery-platform.onrender.com/api`)
+   - `VITE_SOCKET_URL`: Your Render backend base URL (e.g. `https://smart-grocery-platform.onrender.com`)
+4. Click **Deploy**!
+
+---
+
+### Option 3: Docker / VPS Deployment
 Run with Docker Compose:
 ```bash
 docker compose up -d --build
 ```
 The application will be live on `http://localhost:5000`.
+
