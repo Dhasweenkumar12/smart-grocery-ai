@@ -535,9 +535,9 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       const newUser = { _id: 'u_' + Date.now(), ...data };
       staff.push(newUser);
       setStored('staff', staff);
-      return { success: true, user: newUser };
+      return { success: true, user: newUser, data: newUser };
     }
-    return { success: true, count: staff.length, staff };
+    return { success: true, count: staff.length, data: staff, staff };
   }
 
   if (cleanUrl.startsWith('/auth/staff/')) {
@@ -558,7 +558,7 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       const q = params.search.toLowerCase();
       products = products.filter(p => p.name.toLowerCase().includes(q) || p.barcode?.includes(q));
     }
-    return { success: true, count: products.length, products };
+    return { success: true, count: products.length, data: products, products };
   }
 
   if (cleanUrl.startsWith('/products/barcode/')) {
@@ -570,14 +570,15 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       err.response = { status: 404, data: { message: 'Barcode not in catalog' } };
       throw err;
     }
-    return { success: true, product: found };
+    return { success: true, data: found, product: found };
   }
 
   if (cleanUrl.startsWith('/products/') && method === 'get') {
     const id = cleanUrl.split('/')[2];
     const products = getStored('products', INITIAL_PRODUCTS);
     const found = products.find(p => p._id === id || p.productId === id);
-    return { success: true, product: found || products[0] };
+    const item = found || products[0];
+    return { success: true, data: item, product: item };
   }
 
   // Batches
@@ -591,15 +592,25 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       };
       batches.unshift(newBatch);
       setStored('batches', batches);
-      return { success: true, batch: newBatch };
+      return { success: true, data: newBatch, batch: newBatch };
     }
-    return { success: true, count: batches.length, batches };
+    return { success: true, count: batches.length, data: batches, batches };
   }
 
   if (cleanUrl === '/batches/alerts') {
     const batches = getStored('batches', []);
     const near = batches.filter(b => b.daysToExpiry <= 7);
-    return { success: true, count: near.length, alerts: near };
+    return {
+      success: true,
+      count: near.length,
+      data: near,
+      alerts: near,
+      summary: {
+        critical: near.length,
+        warning: 1,
+        healthy: batches.length - near.length
+      }
+    };
   }
 
   // Orders
@@ -627,9 +638,9 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
         setStored('products', products);
       }
 
-      return { success: true, order: newOrder };
+      return { success: true, data: newOrder, order: newOrder };
     }
-    return { success: true, count: orders.length, orders };
+    return { success: true, count: orders.length, data: orders, orders };
   }
 
   if (cleanUrl.startsWith('/orders/') && cleanUrl.endsWith('/status')) {
@@ -641,7 +652,7 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       ord.statusTimeline.push({ status: ord.orderStatus, timestamp: new Date().toISOString(), notes: data.notes || '' });
       setStored('orders', orders);
     }
-    return { success: true, order: ord };
+    return { success: true, data: ord, order: ord };
   }
 
   if (cleanUrl.startsWith('/orders/') && cleanUrl.endsWith('/assign-delivery')) {
@@ -653,13 +664,13 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       ord.orderStatus = 'Out for Delivery';
       setStored('orders', orders);
     }
-    return { success: true, order: ord };
+    return { success: true, data: ord, order: ord };
   }
 
   // Reorders / Purchase Orders
   if (cleanUrl === '/reorders') {
     let reorders = getStored('reorders', []);
-    return { success: true, count: reorders.length, purchaseOrders: reorders };
+    return { success: true, count: reorders.length, data: reorders, purchaseOrders: reorders };
   }
 
   if (cleanUrl.startsWith('/reorders/') && cleanUrl.endsWith('/approve')) {
@@ -670,7 +681,7 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       po.status = 'APPROVED';
       setStored('reorders', reorders);
     }
-    return { success: true, purchaseOrder: po };
+    return { success: true, data: po, purchaseOrder: po };
   }
 
   if (cleanUrl.startsWith('/reorders/') && cleanUrl.endsWith('/receive')) {
@@ -690,7 +701,7 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       });
       setStored('products', products);
     }
-    return { success: true, purchaseOrder: po };
+    return { success: true, data: po, purchaseOrder: po };
   }
 
   if (cleanUrl === '/reorders/scan') {
@@ -730,14 +741,15 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       const newSup = { _id: 'sup_' + Date.now(), ...data };
       suppliers.push(newSup);
       setStored('suppliers', suppliers);
-      return { success: true, supplier: newSup };
+      return { success: true, data: newSup, supplier: newSup };
     }
-    return { success: true, count: suppliers.length, suppliers };
+    return { success: true, count: suppliers.length, data: suppliers, suppliers };
   }
 
   if (cleanUrl === '/suppliers/recommend') {
     const suppliers = getStored('suppliers', INITIAL_SUPPLIERS);
-    return { success: true, recommendedSupplier: suppliers[0] };
+    const rec = suppliers[0];
+    return { success: true, data: rec, bestRecommendation: rec, recommendedSupplier: rec };
   }
 
   // AI & Gemini
@@ -794,33 +806,29 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
 
   if (cleanUrl === '/ai/cart-recommendations') {
     const products = getStored('products', INITIAL_PRODUCTS);
-    return {
-      success: true,
-      recommendations: products.slice(0, 3).map(p => ({
-        ...p,
-        reason: 'Frequently bought together with your selected items'
-      }))
-    };
+    const recs = products.slice(0, 3).map(p => ({
+      ...p,
+      reason: 'Frequently bought together with your selected items'
+    }));
+    return { success: true, data: recs, recommendations: recs };
   }
 
   if (cleanUrl === '/ai/smart-offers') {
     const products = getStored('products', INITIAL_PRODUCTS);
     const discounted = products.filter(p => p.isDiscounted || p.discountPercent > 0);
-    return { success: true, count: discounted.length, offers: discounted };
+    return { success: true, count: discounted.length, data: discounted, offers: discounted };
   }
 
   if (cleanUrl === '/ai/insights') {
-    return {
-      success: true,
-      insights: {
-        summary: 'FEFO stock rotation is performing with 96% efficiency. 2 batches in Dairy & Bakery are within critical 3-day expiry windows.',
-        recommendations: [
-          'Activate 15% markdown badge on Whole Wheat Bread to accelerate sales velocity before expiry.',
-          'Consolidate dairy orders with Apex Dairy & Poultry for next-day dispatch.',
-          'Reorder Aashirvaad Chakki Atta to replenish safety stock buffer.'
-        ]
-      }
+    const insights = {
+      summary: 'FEFO stock rotation is performing with 96% efficiency. 2 batches in Dairy & Bakery are within critical 3-day expiry windows.',
+      recommendations: [
+        'Activate 15% markdown badge on Whole Wheat Bread to accelerate sales velocity before expiry.',
+        'Consolidate dairy orders with Apex Dairy & Poultry for next-day dispatch.',
+        'Reorder Aashirvaad Chakki Atta to replenish safety stock buffer.'
+      ]
     };
+    return { success: true, data: insights, insights, ...insights };
   }
 
   if (cleanUrl === '/ai/forecast/all' || cleanUrl.startsWith('/ai/forecast/')) {
@@ -838,7 +846,12 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       recommendedReorderUnits: p.currentStock <= p.minStockLevel ? p.minStockLevel * 2 : 0,
       confidenceScore: 0.94
     }));
-    return { success: true, count: forecasts.length, forecasts };
+    if (cleanUrl.startsWith('/ai/forecast/') && cleanUrl !== '/ai/forecast/all') {
+      const pid = cleanUrl.split('/')[3];
+      const single = forecasts.find(f => f.productId === pid || f._id === pid) || forecasts[0];
+      return { success: true, data: single, forecast: single };
+    }
+    return { success: true, count: forecasts.length, data: forecasts, forecasts };
   }
 
   // Analytics
@@ -853,20 +866,19 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
     const lowStockCount = products.filter(p => p.currentStock <= p.minStockLevel).length;
     const expiringBatchesCount = batches.filter(b => b.daysToExpiry <= 7).length;
 
-    return {
-      success: true,
-      stats: {
-        totalProducts: products.length,
-        totalStock,
-        todaySales: Math.round(todaySales),
-        todayProfit: Math.round(todayProfit),
-        todayOrdersCount: orders.length,
-        onlineOrdersCount: orders.filter(o => o.orderType === 'ONLINE').length,
-        lowStockCount,
-        expiringBatchesCount,
-        pendingOrdersCount: orders.filter(o => o.orderStatus === 'Placed').length
-      }
+    const stats = {
+      totalProducts: products.length,
+      totalStock,
+      todaySales: Math.round(todaySales),
+      todayProfit: Math.round(todayProfit),
+      todayOrdersCount: orders.length,
+      onlineOrdersCount: orders.filter(o => o.orderType === 'ONLINE').length,
+      lowStockCount,
+      expiringBatchesCount,
+      pendingOrdersCount: orders.filter(o => o.orderStatus === 'Placed').length
     };
+
+    return { success: true, data: stats, stats };
   }
 
   if (cleanUrl === '/analytics/charts') {
@@ -911,15 +923,14 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       price: p.sellingPrice
     }));
 
-    return {
-      success: true,
-      data: {
-        categoryBreakdown,
-        salesTrend,
-        bestSellers,
-        slowMovers
-      }
+    const chartData = {
+      categoryBreakdown,
+      salesTrend,
+      bestSellers,
+      slowMovers
     };
+
+    return { success: true, data: chartData, ...chartData };
   }
 
   if (cleanUrl === '/analytics/alerts') {
@@ -951,12 +962,12 @@ export async function resolveMockRequest(method, url, data = {}, params = {}) {
       });
     });
 
-    return { success: true, count: alerts.length, data: alerts };
+    return { success: true, count: alerts.length, data: alerts, alerts };
   }
 
   if (cleanUrl === '/audit') {
     const logs = getStored('audit', []);
-    return { success: true, count: logs.length, logs };
+    return { success: true, count: logs.length, data: logs, logs };
   }
 
   // Default fallback
